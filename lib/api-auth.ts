@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export type AuthResult =
   | {
       authorized: true;
-      user: { id: string; role: string; name?: string; email?: string };
+      user: { id: string; role: string; name?: string; email?: string; centerId?: number };
       errorResponse?: never;
     }
   | {
@@ -24,7 +24,7 @@ export async function requireAuth(allowedRoles?: string[]): Promise<AuthResult> 
     };
   }
 
-  const user = session.user as { id: string; role: string; name?: string; email?: string };
+  const user = session.user as { id: string; role: string; name?: string; email?: string; centerId?: number };
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return {

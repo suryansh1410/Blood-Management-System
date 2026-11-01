@@ -303,6 +303,11 @@ export default function AdminRequestsPage() {
                             </>
                           )}
 
+                          <a href={`/track/${r.requestCode || r.id}`} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline" size="sm" className="text-xs text-cyan-400 border-cyan-800/60 hover:bg-cyan-950/40">
+                              Timeline
+                            </Button>
+                          </a>
                           <a href={`/admin/requests/${r.id}`}>
                             <Button variant="outline" size="sm" className="text-xs">
                               Detail

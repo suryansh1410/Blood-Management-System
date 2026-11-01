@@ -111,6 +111,13 @@ export default function PatientRequestDetailPage({
         </div>
 
         <div className="flex items-center gap-2">
+          <a
+            href={`/track/${encodeURIComponent(request.requestCode || request.id)}`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 font-bold text-xs border border-cyan-500/30 transition-colors"
+          >
+            <Clock className="w-3.5 h-3.5" />
+            Live 11-Stage Tracker &rarr;
+          </a>
           {canCancel && (
             <Button
               variant="danger"

@@ -55,44 +55,57 @@ export function Navbar() {
 
   const publicNavLinks = [
     { href: "/", label: "Home" },
-    { href: "/blood-availability", label: "Blood Availability" },
-    { href: "/how-it-works", label: "How It Works" },
-    { href: "/become-a-donor", label: "Become a Donor" },
-    { href: "/about", label: "About" },
-    { href: "/contact", label: "Contact" },
+    { href: "/emergency", label: "Emergency Request", isEmergency: true },
+    { href: "/donors/finder", label: "Nearby Donors" },
+    { href: "/heatmap", label: "Network Heatmap" },
+    { href: "/inventory/live", label: "Live Stock" },
+    { href: "/appointments/book", label: "Book Appointment" },
+    { href: "/track", label: "Track Request" },
   ];
 
   const donorLinks = [
     { href: "/donor/dashboard", label: "Dashboard", icon: Activity },
-    { href: "/donor/donations/new", label: "Record Donation", icon: PlusCircle },
+    { href: "/appointments/book", label: "Book Appointment", icon: Calendar },
+    { href: "/donor/alerts", label: "Emergency Alerts", icon: Bell },
+    { href: "/donors/finder", label: "Nearby Donors", icon: Users },
+    { href: "/heatmap", label: "Heatmap", icon: Search },
     { href: "/donor/donations", label: "My History", icon: Calendar },
-    { href: "/donor/availability", label: "Availability", icon: CheckCircle },
-    { href: "/donor/profile", label: "Profile", icon: User },
-    { href: "/donor/notifications", label: "Notifications", icon: Bell },
+    { href: "/donor/profile", label: "Profile & Privacy", icon: User },
   ];
 
   const patientLinks = [
     { href: "/patient/dashboard", label: "Dashboard", icon: Activity },
-    { href: "/patient/requests/new", label: "Request Blood", icon: PlusCircle },
+    { href: "/emergency", label: "Emergency Request", icon: PlusCircle, isEmergency: true },
+    { href: "/track", label: "Track Request", icon: FileText },
+    { href: "/donors/finder", label: "Nearby Donors", icon: Users },
+    { href: "/heatmap", label: "Network Heatmap", icon: Search },
     { href: "/patient/requests", label: "My Requests", icon: FileText },
-    { href: "/patient/search", label: "Blood Finder", icon: Search },
     { href: "/patient/profile", label: "Profile", icon: User },
-    { href: "/patient/notifications", label: "Notifications", icon: Bell },
   ];
 
   const adminLinks = [
     { href: "/admin/dashboard", label: "Overview", icon: BarChart3 },
-    { href: "/admin/inventory", label: "Inventory", icon: Layers },
-    { href: "/admin/donations", label: "Donations", icon: Droplet },
-    { href: "/admin/requests", label: "Requests", icon: FileText },
-    { href: "/admin/donors", label: "Donors", icon: Users },
-    { href: "/admin/patients", label: "Patients", icon: Building2 },
+    { href: "/inventory/live", label: "Live Inventory", icon: Layers },
+    { href: "/admin/requests", label: "Emergency Requests", icon: FileText },
+    { href: "/admin/appointments", label: "Appointments", icon: Calendar },
+    { href: "/donors/finder", label: "Donor Finder", icon: Users },
+    { href: "/heatmap", label: "Network Map", icon: Search },
     { href: "/admin/reports", label: "Audit Log", icon: FileText },
+  ];
+
+  const hospitalLinks = [
+    { href: "/inventory/live", label: "Live Inventory", icon: Layers },
+    { href: "/admin/requests", label: "Emergency Requests", icon: FileText },
+    { href: "/admin/appointments", label: "Appointments", icon: Calendar },
+    { href: "/donors/finder", label: "Nearby Donors", icon: Users },
+    { href: "/heatmap", label: "Network Map", icon: Search },
   ];
 
   const currentNavLinks =
     role === "ADMIN"
       ? adminLinks
+      : role === "HOSPITAL"
+      ? hospitalLinks
       : role === "DONOR"
       ? donorLinks
       : role === "PATIENT"
@@ -100,7 +113,7 @@ export function Navbar() {
       : publicNavLinks;
 
   const notificationsUrl =
-    role === "ADMIN"
+    role === "ADMIN" || role === "HOSPITAL"
       ? "/admin/notifications"
       : role === "DONOR"
       ? "/donor/notifications"
@@ -145,12 +158,15 @@ export function Navbar() {
           <nav className="hidden md:flex items-center gap-1">
             {currentNavLinks.map((item) => {
               const isActive = pathname === item.href;
+              const isEmerg = (item as any).isEmergency;
               return (
                 <a
                   key={item.href}
                   href={item.href}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    isEmerg
+                      ? "bg-rose-600 hover:bg-rose-500 text-white font-extrabold shadow-sm shadow-rose-950 flex items-center gap-1.5 animate-pulse"
+                      : isActive
                       ? "bg-slate-800 text-teal-400 font-semibold"
                       : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
                   }`}

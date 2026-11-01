@@ -34,6 +34,9 @@ export async function GET() {
         bloodGroup: user.donorProfile.bloodGroup,
         bloodGroupDisplay: BLOOD_GROUP_DISPLAY[user.donorProfile.bloodGroup],
         availabilityStatus: user.donorProfile.availabilityStatus,
+        notificationConsent: user.donorProfile.notificationConsent,
+        allowNearbyAlerts: user.donorProfile.allowNearbyAlerts,
+        preferredRadiusKm: user.donorProfile.preferredRadiusKm,
         totalDonations: stats.totalDonations,
         lastDonationDate: stats.lastDonationDate,
         createdAt: user.createdAt,
@@ -67,6 +70,19 @@ export async function PATCH(req: Request) {
         phone: parsed.data.phone,
         city: parsed.data.city,
         address: parsed.data.address || null,
+        donorProfile: {
+          update: {
+            ...(parsed.data.notificationConsent !== undefined
+              ? { notificationConsent: parsed.data.notificationConsent }
+              : {}),
+            ...(parsed.data.allowNearbyAlerts !== undefined
+              ? { allowNearbyAlerts: parsed.data.allowNearbyAlerts }
+              : {}),
+            ...(parsed.data.preferredRadiusKm !== undefined
+              ? { preferredRadiusKm: parsed.data.preferredRadiusKm }
+              : {}),
+          },
+        },
       },
       include: {
         donorProfile: true,
@@ -74,7 +90,7 @@ export async function PATCH(req: Request) {
     });
 
     return NextResponse.json({
-      message: "Profile updated successfully",
+      message: "Profile and preferences updated successfully",
       data: {
         id: updatedUser.id,
         name: updatedUser.name,
@@ -82,6 +98,9 @@ export async function PATCH(req: Request) {
         phone: updatedUser.phone,
         city: updatedUser.city,
         address: updatedUser.address,
+        notificationConsent: updatedUser.donorProfile?.notificationConsent,
+        allowNearbyAlerts: updatedUser.donorProfile?.allowNearbyAlerts,
+        preferredRadiusKm: updatedUser.donorProfile?.preferredRadiusKm,
       },
     });
   } catch (error: any) {

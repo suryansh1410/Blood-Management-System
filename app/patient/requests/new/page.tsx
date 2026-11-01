@@ -25,6 +25,10 @@ function NewBloodRequestForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedGroup = searchParams.get("group") || "A_POS";
+  const preselectedHospital = searchParams.get("hospitalName") || "";
+  const preselectedCity = searchParams.get("city") || "";
+  const preselectedComponent = searchParams.get("component") || "";
+  const preselectedUrgency = searchParams.get("urgency") || "NORMAL";
 
   const { success, error: toastError } = useToast();
 
@@ -36,12 +40,12 @@ function NewBloodRequestForm() {
     patientName: "",
     bloodGroup: preselectedGroup,
     unitsRequired: 1,
-    hospitalName: "",
-    city: "",
+    hospitalName: preselectedHospital,
+    city: preselectedCity,
     contactNumber: "",
     requiredDate: defaultRequiredDate,
-    urgency: "NORMAL",
-    additionalInfo: "",
+    urgency: preselectedUrgency,
+    additionalInfo: preselectedComponent ? `Required Component: ${preselectedComponent}` : "",
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -55,9 +59,9 @@ function NewBloodRequestForm() {
           const json = await res.json();
           setFormData((prev) => ({
             ...prev,
-            hospitalName: json.data?.organizationName || prev.hospitalName,
-            city: json.data?.city || prev.city,
-            contactNumber: json.data?.phone || prev.contactNumber,
+            hospitalName: prev.hospitalName || json.data?.organizationName || "",
+            city: prev.city || json.data?.city || "",
+            contactNumber: prev.contactNumber || json.data?.phone || "",
           }));
         }
       } catch {

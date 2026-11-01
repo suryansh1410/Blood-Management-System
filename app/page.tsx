@@ -15,6 +15,13 @@ import {
   ArrowRight,
   Activity,
   Search,
+  ShieldAlert,
+  Users,
+  Layers,
+  Calendar,
+  Clock,
+  MapPin,
+  Sparkles,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -140,6 +147,171 @@ export default async function HomePage() {
         {/* Hero Background Pattern */}
         <div className="absolute -right-16 -bottom-16 opacity-10 pointer-events-none">
           <Droplet className="w-96 h-96 fill-white" />
+        </div>
+      </section>
+
+      {/* Integrated Six-Feature Coordination Platform */}
+      <section className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-rose-400 mb-1">
+              <Sparkles className="w-4 h-4" />
+              Integrated Coordination System
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Six Real-World Healthcare Features
+            </h2>
+            <p className="text-sm text-slate-400 mt-1 max-w-2xl">
+              Connected emergency matching, privacy-preserving donor coordination, and live audit-safe
+              reserves centered on Gwalior & Madhya Pradesh.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {/* Feature 1 */}
+          <a
+            href="/emergency"
+            className="group bg-slate-900/90 border border-slate-800 hover:border-rose-500/50 rounded-2xl p-6 shadow-xl transition-all duration-200 hover:-translate-y-1 relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <ShieldAlert className="w-6 h-6" />
+              </div>
+              <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                24x7 Priority
+              </span>
+            </div>
+            <h3 className="text-base font-extrabold text-slate-100 group-hover:text-rose-400 transition-colors">
+              Emergency Blood Request
+            </h3>
+            <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+              Instant requisition matching with verified local stocks, automated donor broadcast, and hospital reservation hold.
+            </p>
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-rose-400">
+              Submit Requisition &rarr;
+            </div>
+          </a>
+
+          {/* Feature 2 */}
+          <a
+            href="/donors/finder"
+            className="group bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-6 shadow-xl transition-all duration-200 hover:-translate-y-1 relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Users className="w-6 h-6" />
+              </div>
+              <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                Privacy-Safe
+              </span>
+            </div>
+            <h3 className="text-base font-extrabold text-slate-100 group-hover:text-cyan-400 transition-colors">
+              Smart Nearby Donor Finder
+            </h3>
+            <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+              Locate consenting voluntary donors in proximity without public phone exposure or exact address sharing.
+            </p>
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-cyan-400">
+              Discover Donors &rarr;
+            </div>
+          </a>
+
+          {/* Feature 3 */}
+          <a
+            href="/inventory/live"
+            className="group bg-slate-900/90 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-6 shadow-xl transition-all duration-200 hover:-translate-y-1 relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Layers className="w-6 h-6" />
+              </div>
+              <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Audit Verified
+              </span>
+            </div>
+            <h3 className="text-base font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">
+              Live Blood Stock Monitoring
+            </h3>
+            <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+              Hospital reserves across all 8 groups and components with concurrency safety and immutable audit logging.
+            </p>
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+              Inspect Live Stock &rarr;
+            </div>
+          </a>
+
+          {/* Feature 4 */}
+          <a
+            href="/appointments/book"
+            className="group bg-slate-900/90 border border-slate-800 hover:border-teal-500/50 rounded-2xl p-6 shadow-xl transition-all duration-200 hover:-translate-y-1 relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Calendar className="w-6 h-6" />
+              </div>
+              <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                Slot Guarded
+              </span>
+            </div>
+            <h3 className="text-base font-extrabold text-slate-100 group-hover:text-teal-400 transition-colors">
+              Donation Appointment Booking
+            </h3>
+            <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+              Schedule in-person voluntary donations at registered centres with real-time capacity and overbooking prevention.
+            </p>
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-teal-400">
+              Book Donation Slot &rarr;
+            </div>
+          </a>
+
+          {/* Feature 5 */}
+          <a
+            href="/track"
+            className="group bg-slate-900/90 border border-slate-800 hover:border-purple-500/50 rounded-2xl p-6 shadow-xl transition-all duration-200 hover:-translate-y-1 relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Clock className="w-6 h-6" />
+              </div>
+              <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                11-Stage Stepper
+              </span>
+            </div>
+            <h3 className="text-base font-extrabold text-slate-100 group-hover:text-purple-400 transition-colors">
+              Blood Request Tracking
+            </h3>
+            <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+              Follow every step from clinical submission and hospital verification to cold-chain quarantine reservation.
+            </p>
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-purple-400">
+              Track Status &rarr;
+            </div>
+          </a>
+
+          {/* Feature 6 */}
+          <a
+            href="/heatmap"
+            className="group bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-6 shadow-xl transition-all duration-200 hover:-translate-y-1 relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <MapPin className="w-6 h-6" />
+              </div>
+              <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                Geographic Map
+              </span>
+            </div>
+            <h3 className="text-base font-extrabold text-slate-100 group-hover:text-amber-400 transition-colors">
+              Blood Network Heatmap
+            </h3>
+            <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+              Interactive map of verified blood centers across Gwalior, MP, and India with color-coded stock availability.
+            </p>
+            <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-amber-400">
+              Explore Network Map &rarr;
+            </div>
+          </a>
         </div>
       </section>
 

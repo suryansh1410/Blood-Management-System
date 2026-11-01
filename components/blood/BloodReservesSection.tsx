@@ -45,10 +45,11 @@ interface BloodReservesSectionProps {
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<StockStatus, { bar: string; text: string; dot: string }> = {
-  AVAILABLE:    { bar: "bg-emerald-500", text: "text-emerald-400", dot: "bg-emerald-400 shadow-xs shadow-emerald-400/50" },
-  LOW_STOCK:    { bar: "bg-amber-400",   text: "text-amber-400",   dot: "bg-amber-400 shadow-xs shadow-amber-400/50" },
-  CRITICAL:     { bar: "bg-rose-500",    text: "text-rose-400",    dot: "bg-rose-500 shadow-xs shadow-rose-400/50" },
-  OUT_OF_STOCK: { bar: "bg-slate-700",   text: "text-slate-400",   dot: "bg-slate-500" },
+  AVAILABLE:                { bar: "bg-emerald-500", text: "text-emerald-400", dot: "bg-emerald-400 shadow-xs shadow-emerald-400/50" },
+  LOW_STOCK:                { bar: "bg-amber-400",   text: "text-amber-400",   dot: "bg-amber-400 shadow-xs shadow-amber-400/50" },
+  CRITICAL:                 { bar: "bg-rose-500",    text: "text-rose-400",    dot: "bg-rose-500 shadow-xs shadow-rose-400/50" },
+  OUT_OF_STOCK:             { bar: "bg-slate-700",   text: "text-slate-400",   dot: "bg-slate-500" },
+  AVAILABILITY_NOT_UPDATED: { bar: "bg-slate-600",   text: "text-slate-500",   dot: "bg-slate-600" },
 };
 
 const GROUP_ACCENT: Record<string, {
@@ -135,10 +136,11 @@ function StatusDot({ status }: { status: StockStatus }) {
 
 function StockBadge({ status, label }: { status: StockStatus; label: string }) {
   const map: Record<StockStatus, "success" | "warning" | "critical" | "danger" | "neutral"> = {
-    AVAILABLE:    "success",
-    LOW_STOCK:    "warning",
-    CRITICAL:     "critical",
-    OUT_OF_STOCK: "neutral",
+    AVAILABLE:                "success",
+    LOW_STOCK:                "warning",
+    CRITICAL:                 "critical",
+    OUT_OF_STOCK:             "neutral",
+    AVAILABILITY_NOT_UPDATED: "neutral",
   };
   return <Badge variant={map[status]}>{label}</Badge>;
 }
@@ -172,9 +174,9 @@ function SubgroupCard({ sg }: { sg: SubgroupData }) {
   const maxUnits = Math.max(...sg.records.map((r) => r.units), 1);
 
   return (
-    <div className="rounded-xl border border-slate-700/80 bg-slate-800/90 overflow-hidden shadow-lg flex flex-col h-full">
+    <div className="rounded-2xl border border-slate-700/80 bg-slate-800/95 overflow-hidden shadow-lg flex flex-col h-full w-full min-w-0">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 px-4 py-3.5 border-b border-slate-700/70 bg-slate-800">
+      <div className="flex items-center justify-between gap-3 px-4 py-3.5 border-b border-slate-700/70 bg-slate-800/90">
         <div className="flex items-center gap-3 min-w-0">
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shrink-0 border
@@ -191,7 +193,7 @@ function SubgroupCard({ sg }: { sg: SubgroupData }) {
             </h4>
             <div className={`text-xs font-medium flex items-center gap-1.5 mt-0.5 ${cfg.text}`}>
               <StatusDot status={sg.status} />
-              <span>{sg.totalUnits} units in stock</span>
+              <span>{sg.totalUnits} units</span>
               <span className="text-slate-500">&bull;</span>
               <span className="truncate">{sg.statusLabel}</span>
             </div>
@@ -203,48 +205,54 @@ function SubgroupCard({ sg }: { sg: SubgroupData }) {
       </div>
 
       {/* Hospital-wise Table */}
-      <div className="flex-1 overflow-x-auto">
+      <div className="flex-1 w-full min-w-0">
         {sg.records.length === 0 ? (
           <div className="p-8 text-center text-sm text-slate-400">
             No center inventory records registered for {sg.label}.
           </div>
         ) : (
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs table-fixed">
             <thead>
-              <tr className="border-b border-slate-700/60 bg-slate-900/40 text-slate-400 uppercase tracking-wider text-[10px]">
-                <th className="px-4 py-2.5 font-semibold">Blood Bank / Hospital</th>
-                <th className="px-3 py-2.5 font-semibold hidden sm:table-cell">City</th>
-                <th className="px-4 py-2.5 font-semibold text-right">Units</th>
-                <th className="px-4 py-2.5 font-semibold text-right">Status</th>
+              <tr className="border-b border-slate-700/60 bg-slate-900/60 text-slate-400 uppercase tracking-wider text-[10px]">
+                <th className="px-3 sm:px-4 py-2.5 font-semibold w-1/2 min-w-0">Hospital / Center</th>
+                <th className="px-2 sm:px-3 py-2.5 font-semibold text-right w-1/4">Units</th>
+                <th className="px-3 sm:px-4 py-2.5 font-semibold text-right w-1/4">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700/40">
               {sg.records.map((r) => (
                 <tr key={r.id} className="hover:bg-slate-700/30 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="font-semibold text-slate-200 text-xs leading-snug truncate max-w-[150px] sm:max-w-[200px]" title={r.center.name}>
+                  <td className="px-3 sm:px-4 py-3 min-w-0 align-top">
+                    <div
+                      className="font-semibold text-slate-100 text-xs sm:text-[13px] leading-snug break-words whitespace-normal"
+                      title={r.center.name}
+                    >
                       {r.center.name}
                     </div>
-                    <div className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-1">
-                      <Building2 className="w-3 h-3 text-slate-500" />
-                      <span>{r.center.type === "BLOOD_BANK" ? "Blood Bank" : "Hospital"}</span>
-                      <span className="sm:hidden text-slate-500">&bull; {r.center.city}</span>
+                    <div className="text-[11px] text-slate-400 mt-1 flex flex-wrap items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1 text-slate-300">
+                        <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                        <span className="font-medium">{r.center.city}</span>
+                      </span>
+                      <span className="text-slate-600">&bull;</span>
+                      <span className="text-slate-400 inline-flex items-center gap-1">
+                        <Building2 className="w-3 h-3 text-slate-500 shrink-0" />
+                        {r.center.type === "BLOOD_BANK" ? "Blood Bank" : "Hospital"}
+                      </span>
                     </div>
                   </td>
-                  <td className="px-3 py-3 text-slate-400 text-xs hidden sm:table-cell whitespace-nowrap">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-slate-500 shrink-0" />
-                      <span className="truncate">{r.center.city}</span>
+                  <td className="px-2 sm:px-3 py-3 text-right align-top">
+                    <div className="font-black text-slate-100 tabular-nums text-sm sm:text-base leading-none">
+                      {r.units}
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap">
-                    <div className="font-black text-slate-100 tabular-nums text-sm">{r.units}</div>
-                    <div className="w-16 sm:w-20 ml-auto mt-1">
+                    <div className="w-full max-w-[80px] ml-auto mt-1.5">
                       <ProgressBar units={r.units} maxUnits={maxUnits} status={r.status} />
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap">
-                    <StockBadge status={r.status} label={r.statusLabel} />
+                  <td className="px-3 sm:px-4 py-3 text-right align-top">
+                    <div className="inline-flex justify-end shrink-0">
+                      <StockBadge status={r.status} label={r.statusLabel} />
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -397,7 +405,7 @@ function BloodGroupModal({ group, onClose }: BloodGroupModalProps) {
       <div
         ref={modalRef}
         tabIndex={-1}
-        className="relative w-full max-w-5xl max-h-[92vh] flex flex-col bg-slate-900 border border-slate-700/90 rounded-3xl shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 outline-none"
+        className="relative w-full max-w-6xl max-h-[92vh] flex flex-col bg-slate-900 border border-slate-700/90 rounded-3xl shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 outline-none"
       >
         {/* Modal Header */}
         <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-slate-800 bg-slate-900/95 sticky top-0 z-20">
@@ -435,9 +443,9 @@ function BloodGroupModal({ group, onClose }: BloodGroupModalProps) {
         </div>
 
         {/* Modal Scrollable Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1 w-full min-w-0">
           {/* Side-by-Side 2-Column Subgroup Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-4 lg:gap-5 items-stretch w-full min-w-0">
             {group.subgroups.map((sg) => (
               <SubgroupCard key={sg.bloodGroup} sg={sg} />
             ))}
