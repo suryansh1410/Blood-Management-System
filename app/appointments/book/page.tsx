@@ -18,9 +18,13 @@ import {
   ShieldCheck,
   User,
   Sparkles,
+  Info,
 } from "lucide-react";
 import { ALL_BLOOD_GROUPS, BLOOD_GROUP_DISPLAY, SUPPORTED_BLOOD_COMPONENTS } from "@/lib/constants";
 import { useToast } from "@/components/ui/Toast";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Select, Input } from "@/components/ui/Input";
 
 interface SlotInfo {
   timeSlot: string;
@@ -145,24 +149,24 @@ function AppointmentBookingContent() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 border border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-black uppercase tracking-wider mb-3">
-          <Calendar className="w-4 h-4 text-emerald-400" />
-          <span>Feature 4 &bull; Voluntary Donation Coordination</span>
+      {/* Header Banner */}
+      <div className="bg-gradient-to-r from-teal-950/70 via-slate-900 to-slate-900 border border-teal-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-black uppercase tracking-wider mb-3">
+          <Calendar className="w-4 h-4 text-teal-400" />
+          <span>Voluntary Donation Coordination</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-black text-slate-100 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-100 tracking-tight">
           Blood Donation Appointment Booking
         </h1>
         <p className="text-slate-300 text-sm sm:text-base mt-2 max-w-2xl leading-relaxed">
-          Schedule an in-person voluntary donation at registered blood centres in Gwalior and
-          across Madhya Pradesh. Real-time slot capacity prevents overbooking.
+          Schedule an in-person voluntary donation at certified blood banks in Gwalior and
+          across Madhya Pradesh. Real-time slot capacities eliminate waiting and overbooking.
         </p>
       </div>
 
       {bookedAppointment ? (
         /* Booking Confirmation Card */
-        <div className="bg-slate-900 border border-emerald-500/40 rounded-3xl p-8 shadow-2xl space-y-6 animate-in zoom-in-95 duration-200">
+        <div className="bg-slate-900 border border-emerald-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 animate-in zoom-in-95 duration-200">
           <div className="flex items-center gap-3 text-emerald-400">
             <CheckCircle2 className="w-8 h-8 text-emerald-400 shrink-0" />
             <div>
@@ -175,7 +179,7 @@ function AppointmentBookingContent() {
             </div>
           </div>
 
-          <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div className="bg-slate-950/70 border border-slate-800 rounded-2xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div>
               <span className="text-slate-400 block mb-1">Blood Centre:</span>
               <span className="font-extrabold text-slate-100 text-sm block">
@@ -185,7 +189,7 @@ function AppointmentBookingContent() {
 
             <div>
               <span className="text-slate-400 block mb-1">Date & Time Slot:</span>
-              <span className="font-extrabold text-cyan-300 text-sm block">
+              <span className="font-extrabold text-teal-300 text-sm block">
                 {new Date(bookedAppointment.appointmentDate).toLocaleDateString("en-IN")} &bull;{" "}
                 {bookedAppointment.timeSlot}
               </span>
@@ -206,7 +210,7 @@ function AppointmentBookingContent() {
             </div>
           </div>
 
-          <div className="p-4 bg-slate-800/40 border border-slate-700/60 rounded-xl text-xs text-slate-400 space-y-1">
+          <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl text-xs text-slate-400 space-y-1">
             <div className="font-bold text-slate-200 flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-400" /> Clinical Screening Notice:
             </div>
@@ -217,17 +221,17 @@ function AppointmentBookingContent() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setBookedAppointment(null)}
-              className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors"
             >
               Book Another Appointment
-            </button>
-            <a
-              href="/donor/dashboard"
-              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors"
-            >
-              View in Donor Dashboard &rarr;
+            </Button>
+            <a href="/donor/dashboard">
+              <Button variant="primary" size="sm" className="gap-2">
+                View in Donor Dashboard <ChevronRight className="w-4 h-4" />
+              </Button>
             </a>
           </div>
         </div>
@@ -236,24 +240,22 @@ function AppointmentBookingContent() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6 backdrop-blur-md">
             {/* Step 1: Centre Selection */}
-            <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-rose-500" /> Select Registered Blood Centre
-              </label>
-              <select
+            <div className="space-y-2">
+              <Select
+                label="Select Registered Blood Centre"
+                required
                 value={selectedCenterId || ""}
                 onChange={(e) => setSelectedCenterId(parseInt(e.target.value, 10))}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 {centers.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name} — {c.city}, {c.state} ({c.facilityType ? c.facilityType.replace(/_/g, " ") : "Hospital"})
                   </option>
                 ))}
-              </select>
+              </Select>
 
               {selectedCenter && (
-                <p className="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
+                <p className="text-xs text-slate-400 flex items-center gap-1.5 pt-1">
                   <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                   <span>{selectedCenter.address}</span>
                   <span className="text-slate-600">&bull;</span>
@@ -263,64 +265,51 @@ function AppointmentBookingContent() {
             </div>
 
             {/* Step 2: Date & Blood Group */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-800">
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  Appointment Date
-                </label>
-                <input
-                  type="date"
-                  required
-                  min={new Date().toISOString().split("T")[0]}
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-4 border-t border-slate-800">
+              <Input
+                label="Appointment Date"
+                type="date"
+                required
+                min={new Date().toISOString().split("T")[0]}
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+              />
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  Blood Group
-                </label>
-                <select
-                  value={bloodGroup}
-                  onChange={(e) => setBloodGroup(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                >
-                  {ALL_BLOOD_GROUPS.map((bg) => (
-                    <option key={bg} value={bg}>
-                      {BLOOD_GROUP_DISPLAY[bg]}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <Select
+                label="Blood Group"
+                required
+                value={bloodGroup}
+                onChange={(e) => setBloodGroup(e.target.value)}
+              >
+                {ALL_BLOOD_GROUPS.map((bg) => (
+                  <option key={bg} value={bg}>
+                    {BLOOD_GROUP_DISPLAY[bg]}
+                  </option>
+                ))}
+              </Select>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  Component Preference
-                </label>
-                <select
-                  value={component}
-                  onChange={(e) => setComponent(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                >
-                  {SUPPORTED_BLOOD_COMPONENTS.map((comp) => (
-                    <option key={comp} value={comp}>
-                      {comp}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <Select
+                label="Component Preference"
+                required
+                value={component}
+                onChange={(e) => setComponent(e.target.value)}
+              >
+                {SUPPORTED_BLOOD_COMPONENTS.map((comp) => (
+                  <option key={comp} value={comp}>
+                    {comp}
+                  </option>
+                ))}
+              </Select>
             </div>
 
             {/* Step 3: Available Time Slots */}
-            <div className="pt-4 border-t border-slate-800">
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center justify-between">
-                <span className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-cyan-400" /> Available Time Slots (Capacity Guarded)
+            <div className="pt-4 border-t border-slate-800 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-teal-400" /> Available Time Slots (Capacity Guarded)
                 </span>
                 {loadingSlots && <span className="text-slate-400 text-xs font-normal">Loading slots...</span>}
-              </label>
+              </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {slots.map((slot) => {
@@ -331,22 +320,22 @@ function AppointmentBookingContent() {
                       type="button"
                       disabled={!slot.isAvailable}
                       onClick={() => setSelectedSlot(slot.timeSlot)}
-                      className={`p-3 rounded-xl border text-left transition-all ${
+                      className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                         isSelected
-                          ? "bg-emerald-600/20 border-emerald-500 text-emerald-300 ring-2 ring-emerald-500/30"
+                          ? "bg-teal-600/20 border-teal-500 text-teal-300 ring-2 ring-teal-500/30"
                           : slot.isAvailable
-                          ? "bg-slate-800/80 border-slate-700 text-slate-200 hover:bg-slate-700/80"
-                          : "bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed opacity-50"
+                          ? "bg-slate-950/60 border-slate-800 text-slate-200 hover:border-slate-700"
+                          : "bg-slate-950/40 border-slate-900 text-slate-600 cursor-not-allowed opacity-50"
                       }`}
                     >
-                      <div className="font-extrabold text-xs">{slot.timeSlot}</div>
-                      <div className="text-[10px] mt-1 text-slate-400">
+                      <div className="font-bold text-xs">{slot.timeSlot}</div>
+                      <div className="text-[10px] mt-1.5">
                         {slot.isAvailable ? (
                           <span className="text-emerald-400 font-semibold">
                             {slot.remaining}/{slot.maxCapacity} slots left
                           </span>
                         ) : (
-                          <span className="text-rose-500 font-semibold">Fully Booked</span>
+                          <span className="text-rose-400 font-semibold">Fully Booked</span>
                         )}
                       </div>
                     </button>
@@ -356,33 +345,43 @@ function AppointmentBookingContent() {
             </div>
 
             {/* Step 4: Notes */}
-            <div className="pt-2">
-              <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                Notes for Staff / Screening (Optional)
-              </label>
-              <input
-                type="text"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="e.g. First-time voluntary donor, or donating for camp drive"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
+            <Input
+              label="Notes for Staff / Screening (Optional)"
+              placeholder="e.g. First-time voluntary donor, or donating for camp drive"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+
+            {/* Selected Booking Summary Preview */}
+            <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div>
+                <span className="text-slate-400">Selected Appointment: </span>
+                <strong className="text-white">
+                  {selectedCenter?.name || "Select center"}, {selectedDate} ({selectedSlot || "Choose a slot"})
+                </strong>
+              </div>
+              <Badge variant="info" size="sm">
+                Slot Guard Active
+              </Badge>
             </div>
 
             {/* Submit Bar */}
-            <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-800">
               <div className="text-xs text-slate-400 flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-emerald-400" />
-                <span>Overbooking prevented via database transactions</span>
+                <Sparkles className="w-4 h-4 text-teal-400" />
+                <span>Overbooking prevented via database row concurrency</span>
               </div>
 
-              <button
+              <Button
                 type="submit"
+                variant="primary"
+                size="md"
                 disabled={submitting || !selectedSlot}
-                className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm shadow-xl shadow-emerald-600/30 transition-all hover:scale-[1.02] disabled:opacity-50 flex items-center gap-2"
+                isLoading={submitting}
+                className="w-full sm:w-auto px-6 py-2.5 font-bold text-xs"
               >
-                {submitting ? "Booking Appointment..." : "Confirm Donation Slot"}
-              </button>
+                Confirm Donation Slot
+              </Button>
             </div>
           </div>
         </form>
@@ -395,7 +394,7 @@ export default function AppointmentBookingPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="text-slate-400 animate-pulse">Loading booking form…</div>
+        <div className="text-slate-400 animate-pulse text-sm">Loading appointment booking...</div>
       </div>
     }>
       <AppointmentBookingContent />

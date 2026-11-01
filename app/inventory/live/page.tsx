@@ -9,18 +9,26 @@ import {
   ShieldCheck,
   AlertTriangle,
   Plus,
-  Minus,
-  Edit,
   RefreshCw,
-  TrendingUp,
-  TrendingDown,
   History,
   CheckCircle2,
-  XCircle,
-  Sparkles,
+  AlertCircle,
+  Filter,
+  Calendar,
+  HelpCircle,
 } from "lucide-react";
-import { ALL_BLOOD_GROUPS, BLOOD_GROUP_DISPLAY, StockStatus } from "@/lib/constants";
+import {
+  ALL_BLOOD_GROUPS,
+  BLOOD_GROUP_DISPLAY,
+  SUPPORTED_BLOOD_COMPONENTS,
+  StockStatus,
+} from "@/lib/constants";
 import { useToast } from "@/components/ui/Toast";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Select, Input } from "@/components/ui/Input";
+import { SkeletonCard, SkeletonTable } from "@/components/ui/Skeleton";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
 
 interface StockRow {
   bloodGroup: string;
@@ -60,6 +68,10 @@ export default function LiveBloodStockMonitoringPage() {
   const [inventoryData, setInventoryData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // Filters for the live view
+  const [filterGroup, setFilterGroup] = useState<string>("All");
+  const [filterComponent, setFilterComponent] = useState<string>("All");
+
   // Adjustment Modal State
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBloodGroup, setSelectedBloodGroup] = useState<string>("B_POS");
@@ -76,7 +88,6 @@ export default function LiveBloodStockMonitoringPage() {
         const json = await res.json();
         if (json.success && json.data) {
           setCenters(json.data);
-          // If hospital staff, pre-select their assigned center
           if (user?.centerId) {
             setSelectedCenterId(user.centerId);
           } else if (json.data.length > 0) {
@@ -145,361 +156,402 @@ export default function LiveBloodStockMonitoringPage() {
 
   const centerInfo = inventoryData?.center;
   const summary = inventoryData?.summary;
-  const rows: StockRow[] = inventoryData?.inventory || [];
+  const rawRows: StockRow[] = inventoryData?.inventory || [];
   const history: StockHistoryRow[] = inventoryData?.history || [];
+
+  // Filter rows based on dropdown selections
+  const rows = rawRows.filter((r) => {
+    if (filterGroup !== "All" && r.bloodGroup !== filterGroup) return false;
+    if (filterComponent !== "All" && r.component !== filterComponent) return false;
+    return true;
+  });
+
+  // Calculate Data Freshness
+  const lastUpdateDate = centerInfo?.lastStockUpdate ? new Date(centerInfo.lastStockUpdate) : null;
+  const hoursSinceUpdate = lastUpdateDate
+    ? Math.round((Date.now() - lastUpdateDate.getTime()) / (1000 * 60 * 60))
+    : 999;
+  const isStale = hoursSinceUpdate > 48;
+
+  const renderStatusBadge = (status: StockStatus, units: number) => {
+    if (isStale) {
+      return (
+        <Badge variant="warning" size="sm">
+          Stale ({hoursSinceUpdate}h ago)
+        </Badge>
+      );
+    }
+
+    switch (status) {
+      case "AVAILABLE":
+        return <Badge variant="success" size="sm">Available</Badge>;
+      case "LOW_STOCK":
+        return <Badge variant="warning" size="sm">Low Stock</Badge>;
+      case "CRITICAL":
+        return <Badge variant="critical" size="sm">Critical</Badge>;
+      case "OUT_OF_STOCK":
+        return <Badge variant="danger" size="sm">Out of Stock</Badge>;
+      case "AVAILABILITY_NOT_UPDATED":
+      default:
+        return <Badge variant="neutral" size="sm">Not Updated</Badge>;
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Header */}
+      {/* Header Banner */}
       <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-black uppercase tracking-wider mb-3">
               <Layers className="w-4 h-4 text-emerald-400" />
-              <span>Feature 3 &bull; Live Hospital Inventory & Audit Trail</span>
+              <span>Hospital Blood Reserves & Audit Ledger</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-black text-slate-100 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-100 tracking-tight">
               Live Blood Stock Monitoring
             </h1>
             <p className="text-slate-400 text-sm sm:text-base mt-2 max-w-2xl leading-relaxed">
-              Real-time multi-centre inventory levels with cold-chain reserves, audit timestamps, and
+              Real-time multi-center certified inventory with quarantine reservation holds, audit timestamps, and
               concurrency-guarded transaction logs.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={fetchInventory}
               disabled={loading}
-              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-colors flex items-center gap-2 border border-slate-700"
+              className="gap-2"
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-emerald-400" : ""}`} />
-              Refresh Live Feed
-            </button>
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-teal-400" : ""}`} />
+              Refresh Feed
+            </Button>
             {isAuthorizedStaff && (
-              <button
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={() => setModalOpen(true)}
-                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-lg shadow-emerald-600/30 transition-all flex items-center gap-2"
+                className="gap-2 shadow-lg shadow-teal-950/60"
               >
-                <Plus className="w-4 h-4" /> Record / Adjust Units
-              </button>
+                <Plus className="w-4 h-4" /> Adjust Center Units
+              </Button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Centre Selector & Freshness Banner */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 backdrop-blur-md">
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <Building2 className="w-5 h-5 text-rose-500 shrink-0" />
-          <div className="flex-1 min-w-0">
-            <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">
-              Selected Hospital / Blood Centre
-            </label>
-            <select
-              value={selectedCenterId}
-              onChange={(e) => setSelectedCenterId(parseInt(e.target.value, 10))}
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm font-bold text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            >
-              {centers.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name} ({c.city}, {c.state})
-                </option>
-              ))}
-            </select>
-          </div>
+      {/* Controls & Freshness Indicator */}
+      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Select
+            label="Selected Hospital / Blood Centre"
+            value={selectedCenterId}
+            onChange={(e) => setSelectedCenterId(parseInt(e.target.value, 10))}
+          >
+            {centers.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name} ({c.city}, {c.state})
+              </option>
+            ))}
+          </Select>
+
+          <Select
+            label="Filter Blood Group"
+            value={filterGroup}
+            onChange={(e) => setFilterGroup(e.target.value)}
+          >
+            <option value="All">All Blood Groups</option>
+            {ALL_BLOOD_GROUPS.map((bg) => (
+              <option key={bg} value={bg}>
+                {BLOOD_GROUP_DISPLAY[bg]}
+              </option>
+            ))}
+          </Select>
+
+          <Select
+            label="Filter Blood Component"
+            value={filterComponent}
+            onChange={(e) => setFilterComponent(e.target.value)}
+          >
+            <option value="All">All Components</option>
+            {SUPPORTED_BLOOD_COMPONENTS.map((comp) => (
+              <option key={comp} value={comp}>
+                {comp}
+              </option>
+            ))}
+          </Select>
         </div>
 
+        {/* Center & Freshness Meta Strip */}
         {centerInfo && (
-          <div className="flex items-center gap-2 text-xs text-slate-400 border-t md:border-t-0 md:border-l border-slate-800 pt-3 md:pt-0 md:pl-6 shrink-0">
-            <Clock className="w-4 h-4 text-cyan-400" />
-            <div>
-              <span className="text-slate-500">Last Stock Report: </span>
-              <span className="font-semibold text-slate-200">
-                {new Date(centerInfo.lastStockUpdate).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })} &bull; {new Date(centerInfo.lastStockUpdate).toLocaleDateString()}
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-800 text-xs">
+            <div className="flex items-center gap-2 text-slate-300">
+              <Building2 className="w-4 h-4 text-teal-400 shrink-0" />
+              <span>
+                <strong className="text-white">{centerInfo.name}</strong> &bull; {centerInfo.address}, {centerInfo.city} ({centerInfo.state})
               </span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 text-slate-400">
+                <Clock className="w-4 h-4 text-slate-500" />
+                <span>Last Updated: </span>
+                <span className="font-semibold text-slate-200">
+                  {lastUpdateDate ? `${lastUpdateDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} (${hoursSinceUpdate}h ago)` : "Unknown"}
+                </span>
+              </div>
+
+              {isStale && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold">
+                  <AlertTriangle className="w-3.5 h-3.5" /> Stale Data Warning
+                </span>
+              )}
             </div>
           </div>
         )}
       </div>
 
-      {/* Summary KPI Badges */}
+      {/* Summary KPI Cards */}
       {summary && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
-            <div className="text-xs text-slate-400 font-medium">Total Physical Units</div>
+          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Units in Stock</div>
             <div className="text-3xl font-black text-slate-100 mt-1 tabular-nums">
               {summary.totalUnits}
             </div>
+            <div className="text-[11px] text-slate-500 mt-1">Verified on-premises inventory</div>
           </div>
 
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
-            <div className="text-xs text-rose-400 font-medium">Critical Stock Groups</div>
+          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <div className="text-xs text-rose-400 font-semibold uppercase tracking-wider">Critical Groups</div>
             <div className="text-3xl font-black text-rose-400 mt-1 tabular-nums">
               {summary.criticalCount}
             </div>
+            <div className="text-[11px] text-slate-500 mt-1">&lt; 3 units available</div>
           </div>
 
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
-            <div className="text-xs text-amber-400 font-medium">Low Stock Groups</div>
+          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <div className="text-xs text-amber-400 font-semibold uppercase tracking-wider">Low Stock Groups</div>
             <div className="text-3xl font-black text-amber-400 mt-1 tabular-nums">
               {summary.lowStockCount}
             </div>
+            <div className="text-[11px] text-slate-500 mt-1">3 &ndash; 7 units available</div>
           </div>
 
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
-            <div className="text-xs text-slate-400 font-medium">Depleted / Out of Stock</div>
+          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Depleted / Zero Stock</div>
             <div className="text-3xl font-black text-slate-400 mt-1 tabular-nums">
               {summary.outOfStockCount}
             </div>
+            <div className="text-[11px] text-slate-500 mt-1">Immediate restock required</div>
           </div>
         </div>
       )}
 
-      {/* 8 Blood Groups Inventory Cards */}
+      {/* Detailed Stock Table */}
       <div className="space-y-4">
-        <h2 className="text-lg font-black text-slate-100 flex items-center gap-2">
-          <Layers className="w-5 h-5 text-emerald-400" /> Current Reserve Levels by Blood Group
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+            <Layers className="w-5 h-5 text-teal-400" /> Current Certified Reserve Inventory
+          </h2>
+          <span className="text-xs text-slate-400">{rows.length} blood groups displayed</span>
+        </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="h-36 bg-slate-900 border border-slate-800 rounded-2xl animate-pulse" />
-            ))}
+          <SkeletonTable rows={8} cols={6} />
+        ) : rows.length === 0 ? (
+          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-12 text-center text-slate-400">
+            <HelpCircle className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+            <div className="font-bold text-slate-300">No stock rows match the current filter</div>
+            <p className="text-xs text-slate-500 mt-1">Select "All Blood Groups" and "All Components" to see full inventory.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {rows.map((r) => (
-              <div
-                key={r.bloodGroup}
-                className="bg-slate-900/90 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 shadow-xl transition-all relative overflow-hidden"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-black text-lg text-slate-100">
-                    {r.displayGroup}
-                  </div>
-                  <span
-                    className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${
-                      r.status === "AVAILABLE"
-                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                        : r.status === "LOW_STOCK"
-                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                        : r.status === "CRITICAL"
-                        ? "bg-rose-500/20 text-rose-400 border border-rose-500/30 animate-pulse"
-                        : "bg-slate-800 text-slate-400 border border-slate-700"
-                    }`}
-                  >
-                    {r.statusLabel}
-                  </span>
-                </div>
-
-                <div className="mt-4">
-                  <div className="flex items-baseline justify-between">
-                    <span className="text-2xl font-black text-slate-100 tabular-nums">
-                      {r.units} <span className="text-xs font-normal text-slate-400">units</span>
-                    </span>
-                    {r.reservedUnits > 0 && (
-                      <span className="text-[10px] text-amber-400 font-bold">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Blood Group</TableHead>
+                <TableHead>Component</TableHead>
+                <TableHead>Total Physical Units</TableHead>
+                <TableHead>On-Hold / Reserved</TableHead>
+                <TableHead>Net Available</TableHead>
+                <TableHead>Stock Status</TableHead>
+                <TableHead>Last Verified</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((r) => (
+                <TableRow key={r.bloodGroup}>
+                  <TableCell>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-rose-600/20 border border-rose-500/30 flex items-center justify-center font-black text-rose-300 text-xs">
+                        {r.displayGroup}
+                      </div>
+                      <span className="font-bold text-slate-100">{r.displayGroup}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-slate-300">{r.component}</TableCell>
+                  <TableCell>
+                    <span className="font-bold text-slate-100 text-base tabular-nums">{r.units}</span>
+                    <span className="text-xs text-slate-400 ml-1">units</span>
+                  </TableCell>
+                  <TableCell>
+                    {r.reservedUnits > 0 ? (
+                      <span className="text-xs font-semibold text-amber-400">
                         {r.reservedUnits} on hold
                       </span>
+                    ) : (
+                      <span className="text-xs text-slate-500">0</span>
                     )}
-                  </div>
-
-                  <div className="text-[11px] text-slate-400 mt-1">
-                    Net Available: <strong className="text-slate-200">{r.netAvailable}</strong>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-black text-teal-300 text-base tabular-nums">{r.netAvailable}</span>
+                  </TableCell>
+                  <TableCell>{renderStatusBadge(r.status, r.units)}</TableCell>
+                  <TableCell className="text-xs text-slate-400">
+                    {new Date(r.lastUpdated).toLocaleDateString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
       </div>
 
-      {/* Stock History Audit Log Table */}
+      {/* Stock Transaction & Audit History */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl space-y-4 backdrop-blur-md">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-black text-slate-100 flex items-center gap-2">
-            <History className="w-5 h-5 text-cyan-400" /> Stock Transaction & Audit History
-          </h3>
-          <span className="text-xs text-slate-400">Immutable ledger of recorded updates</span>
+          <div>
+            <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
+              <History className="w-5 h-5 text-cyan-400" /> Stock Audit Ledger & Transaction History
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Immutable ledger of all additions, fulfillment deductions, and staff adjustments.
+            </p>
+          </div>
+          <span className="text-xs text-slate-400 font-mono">{history.length} records</span>
         </div>
 
         {history.length === 0 ? (
-          <div className="p-8 text-center text-sm text-slate-400 bg-slate-800/40 rounded-xl">
+          <div className="p-8 text-center text-sm text-slate-400 bg-slate-950/60 rounded-2xl border border-slate-800">
             No stock modification records logged for this center yet.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-slate-800 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                  <th className="py-3 px-3">Timestamp</th>
-                  <th className="py-3 px-3">Blood Group</th>
-                  <th className="py-3 px-3">Type</th>
-                  <th className="py-3 px-3">Delta</th>
-                  <th className="py-3 px-3">Balance</th>
-                  <th className="py-3 px-3">Authorized By</th>
-                  <th className="py-3 px-3">Reason</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-mono text-slate-300">
-                {history.map((h) => (
-                  <tr key={h.id} className="hover:bg-slate-800/30">
-                    <td className="py-3 px-3 text-slate-400">
-                      {new Date(h.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })} &bull; {new Date(h.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="py-3 px-3 font-bold text-slate-100">{h.displayGroup}</td>
-                    <td className="py-3 px-3">
-                      <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          h.changeType === "DONATION"
-                            ? "bg-emerald-500/20 text-emerald-400"
-                            : h.changeType === "ISSUED"
-                            ? "bg-rose-500/20 text-rose-400"
-                            : "bg-cyan-500/20 text-cyan-400"
-                        }`}
-                      >
-                        {h.changeType}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 font-bold">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Timestamp</TableHead>
+                <TableHead>Blood Group</TableHead>
+                <TableHead>Action Type</TableHead>
+                <TableHead>Delta</TableHead>
+                <TableHead>Balance Shift</TableHead>
+                <TableHead>Authorized Staff</TableHead>
+                <TableHead>Audit Reason</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {history.map((h) => (
+                <TableRow key={h.id}>
+                  <TableCell className="text-xs text-slate-400 font-mono">
+                    {new Date(h.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })} &bull; {new Date(h.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="font-bold text-slate-100">{h.displayGroup}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        h.changeType === "DONATION"
+                          ? "bg-emerald-500/20 text-emerald-400"
+                          : h.changeType === "ISSUED"
+                          ? "bg-rose-500/20 text-rose-400"
+                          : "bg-cyan-500/20 text-cyan-400"
+                      }`}
+                    >
+                      {h.changeType}
+                    </span>
+                  </TableCell>
+                  <TableCell className="font-bold">
+                    <span className={h.unitsDelta > 0 ? "text-emerald-400" : "text-rose-400"}>
                       {h.unitsDelta > 0 ? `+${h.unitsDelta}` : h.unitsDelta}
-                    </td>
-                    <td className="py-3 px-3 text-slate-400">
-                      {h.previousUnits} &rarr; <span className="text-slate-100 font-bold">{h.newUnits}</span>
-                    </td>
-                    <td className="py-3 px-3 text-slate-300 font-sans">{h.performedBy}</td>
-                    <td className="py-3 px-3 text-slate-400 font-sans">{h.reason || "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-xs font-mono text-slate-400">
+                    {h.previousUnits} &rarr; <span className="text-slate-100 font-bold">{h.newUnits}</span>
+                  </TableCell>
+                  <TableCell className="text-slate-300">{h.performedBy}</TableCell>
+                  <TableCell className="text-slate-400 text-xs">{h.reason || "—"}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
       </div>
 
-      {/* Authorized Stock Adjustment Modal */}
+      {/* Adjustment Modal for Authorized Staff */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2 text-emerald-400 font-bold">
-                <Edit className="w-5 h-5" />
-                <span>Hospital Inventory Update</span>
-              </div>
-              <button
-                onClick={() => setModalOpen(false)}
-                className="text-slate-400 hover:text-white"
-              >
-                &times;
-              </button>
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-150"
+        >
+          <div className="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-5 animate-in zoom-in-95 duration-150 text-slate-100">
+            <div className="border-b border-slate-800 pb-3">
+              <h3 className="text-lg font-bold text-slate-100">Record Manual Stock Adjustment</h3>
+              <p className="text-xs text-slate-400 mt-1">
+                Authorized staff entry for {centerInfo?.name}. Recorded in immutable audit trail.
+              </p>
             </div>
 
             <form onSubmit={handleAdjustStock} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Blood Group</label>
-                <select
-                  value={selectedBloodGroup}
-                  onChange={(e) => setSelectedBloodGroup(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm font-bold text-slate-100"
-                >
-                  {ALL_BLOOD_GROUPS.map((bg) => (
-                    <option key={bg} value={bg}>
-                      {BLOOD_GROUP_DISPLAY[bg]}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <Select
+                label="Target Blood Group"
+                value={selectedBloodGroup}
+                onChange={(e) => setSelectedBloodGroup(e.target.value)}
+              >
+                {ALL_BLOOD_GROUPS.map((bg) => (
+                  <option key={bg} value={bg}>
+                    {BLOOD_GROUP_DISPLAY[bg]}
+                  </option>
+                ))}
+              </Select>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  Operation Type
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setAction("add")}
-                    className={`py-2 text-xs font-bold rounded-xl border ${
-                      action === "add"
-                        ? "bg-emerald-600/30 border-emerald-500 text-emerald-300"
-                        : "bg-slate-800 border-slate-700 text-slate-400"
-                    }`}
-                  >
-                    + Add Units (Donation)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAction("remove")}
-                    className={`py-2 text-xs font-bold rounded-xl border ${
-                      action === "remove"
-                        ? "bg-rose-600/30 border-rose-500 text-rose-300"
-                        : "bg-slate-800 border-slate-700 text-slate-400"
-                    }`}
-                  >
-                    - Issue Units
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAction("set")}
-                    className={`py-2 text-xs font-bold rounded-xl border ${
-                      action === "set"
-                        ? "bg-cyan-600/30 border-cyan-500 text-cyan-300"
-                        : "bg-slate-800 border-slate-700 text-slate-400"
-                    }`}
-                  >
-                    Set Count
-                  </button>
-                </div>
-              </div>
+              <Select
+                label="Adjustment Operation"
+                value={action}
+                onChange={(e) => setAction(e.target.value as any)}
+              >
+                <option value="add">Add Units (e.g. Inflow / Batch Arrival)</option>
+                <option value="remove">Deduct Units (e.g. Discard / Testing / Relocation)</option>
+                <option value="set">Set Exact Count (Physical Audit Recalibration)</option>
+              </Select>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Units</label>
-                <input
-                  type="number"
-                  min="0"
-                  required
-                  value={unitsInput}
-                  onChange={(e) => setUnitsInput(parseInt(e.target.value, 10) || 0)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm font-bold text-slate-100"
-                />
-              </div>
+              <Input
+                label="Unit Quantity"
+                type="number"
+                min={1}
+                max={500}
+                required
+                value={unitsInput}
+                onChange={(e) => setUnitsInput(parseInt(e.target.value, 10) || 1)}
+              />
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  Audit Reason / Clinical Reference <span className="text-rose-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={adjustReason}
-                  onChange={(e) => setAdjustReason(e.target.value)}
-                  placeholder="e.g. Received voluntary donation camp batch or emergency issue #REQ-9041"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-xs text-slate-100"
-                />
-              </div>
+              <Input
+                label="Reason / Audit Note"
+                required
+                placeholder="e.g. Regular morning physical audit verification"
+                value={adjustReason}
+                onChange={(e) => setAdjustReason(e.target.value)}
+              />
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold"
-                >
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                <Button variant="outline" size="sm" type="button" onClick={() => setModalOpen(false)}>
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={adjusting}
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition-colors disabled:opacity-50"
-                >
-                  {adjusting ? "Updating..." : "Commit Update"}
-                </button>
+                </Button>
+                <Button variant="primary" size="sm" type="submit" isLoading={adjusting} disabled={adjusting}>
+                  Confirm & Commit Stock
+                </Button>
               </div>
             </form>
           </div>

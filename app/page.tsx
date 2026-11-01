@@ -114,30 +114,30 @@ export default async function HomePage() {
             inventory tracking, direct verified donations, and rapid hospital request fulfillment.
           </p>
           <div className="flex flex-wrap items-center gap-4 pt-2">
-            <a href="/register?role=DONOR">
-              <Button variant="danger" size="lg" className="gap-2 shadow-lg shadow-rose-900/40">
-                <Heart className="w-5 h-5 fill-white" />
-                Become a Blood Donor
+            <a href="/emergency">
+              <Button variant="danger" size="lg" className="gap-2 shadow-lg shadow-rose-950/60 font-semibold px-6 py-3">
+                <ShieldAlert className="w-5 h-5 text-white" />
+                Emergency Blood Request
               </Button>
             </a>
-            <a href="/register?role=PATIENT">
+            <a href="/inventory/live">
               <Button
                 variant="outline"
                 size="lg"
-                className="bg-white/10 hover:bg-white/20 text-white border-white/20 gap-2"
+                className="bg-slate-900/80 hover:bg-slate-800 text-teal-300 border-teal-500/40 hover:border-teal-400 gap-2 font-semibold px-6 py-3"
               >
-                Request Blood Supply
-                <ArrowRight className="w-4 h-4" />
+                <Search className="w-4 h-4 text-teal-400" />
+                Find Blood / Check Availability
               </Button>
             </a>
-            <a href="/blood-availability">
+            <a href="/register?role=DONOR">
               <Button
                 variant="ghost"
                 size="lg"
-                className="text-slate-300 hover:text-white hover:bg-white/10 gap-2"
+                className="text-slate-300 hover:text-white hover:bg-slate-800/60 gap-2 font-medium"
               >
-                <Search className="w-4 h-4" />
-                Check Availability
+                <Heart className="w-4 h-4 text-rose-400" />
+                Become a Voluntary Donor
               </Button>
             </a>
           </div>
@@ -342,48 +342,55 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* How It Works Overview */}
+      {/* How It Works Overview - 4-Step Healthcare Pipeline */}
       <section className="space-y-8">
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
             How The LifePulse Workflow Works
           </h2>
           <p className="text-sm text-slate-400">
-            A real-world verified pipeline ensuring safety, accountability, and accurate inventory.
+            A real-world verified 4-step pipeline ensuring clinical safety, accountability, and accurate reserves.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-500/15 border border-teal-500/25 text-teal-400 flex items-center justify-center font-bold text-lg">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <Card className="space-y-3 p-5">
+            <div className="w-9 h-9 rounded-xl bg-teal-500/15 border border-teal-500/25 text-teal-400 flex items-center justify-center font-bold text-base">
               1
             </div>
-            <h3 className="text-lg font-bold text-white">Donation & Verification</h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Donors register and record donation details. Blood bank staff review and verify each
-              donation, which automatically increments inventory atomically.
+            <h3 className="text-base font-bold text-white">Donation / Verification</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Donors register and complete blood screening. Blood bank staff verify each unit, which safely increments verified inventory atomically.
             </p>
           </Card>
 
-          <Card className="space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/25 text-blue-400 flex items-center justify-center font-bold text-lg">
+          <Card className="space-y-3 p-5">
+            <div className="w-9 h-9 rounded-xl bg-sky-500/15 border border-sky-500/25 text-sky-400 flex items-center justify-center font-bold text-base">
               2
             </div>
-            <h3 className="text-lg font-bold text-white">Patient & Hospital Request</h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Hospitals and patients submit specific blood requests with required dates and urgency
-              levels. Requesters receive instant status updates.
+            <h3 className="text-base font-bold text-white">Patient / Hospital Request</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Patients and hospital staff submit specific clinical requisitions with required units, components, and priority level.
             </p>
           </Card>
 
-          <Card className="space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 flex items-center justify-center font-bold text-lg">
+          <Card className="space-y-3 p-5">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/25 text-amber-400 flex items-center justify-center font-bold text-base">
               3
             </div>
-            <h3 className="text-lg font-bold text-white">Approval & Fulfillment</h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Admins approve requests, and upon physical handover, mark them fulfilled. Stock is
-              strictly deducted without risk of negative inventory or double-deduction.
+            <h3 className="text-base font-bold text-white">Centre Response</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Regional blood banks and hospitals check live reserves, confirm physical availability, and place matching blood units on hold.
+            </p>
+          </Card>
+
+          <Card className="space-y-3 p-5">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 flex items-center justify-center font-bold text-base">
+              4
+            </div>
+            <h3 className="text-base font-bold text-white">Approval / Fulfilment</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Admins approve distribution and mark fulfillment upon cold-chain handover. Inventory is strictly deducted with an immutable audit record.
             </p>
           </Card>
         </div>

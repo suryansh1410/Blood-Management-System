@@ -3,9 +3,12 @@
 import React, { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardHeader } from "@/components/ui/Card";
+import Link from "next/link";
+import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Droplet, Lock, Mail, AlertCircle, ArrowRight, ShieldCheck } from "lucide-react";
+import { Input } from "@/components/ui/Input";
+import { Alert } from "@/components/ui/Alert";
+import { Droplet, Lock, Mail, ArrowRight, ShieldCheck, Eye, EyeOff } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +19,7 @@ function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +39,6 @@ function LoginForm() {
         setError(res.error);
         setLoading(false);
       } else {
-        // Fetch session to determine role redirect
         const sessionRes = await fetch("/api/auth/session");
         const session = await sessionRes.json();
         const role = session?.user?.role;
@@ -64,113 +67,141 @@ function LoginForm() {
   };
 
   return (
-    <div className="max-w-md mx-auto my-6 space-y-6">
-      <div className="text-center space-y-2">
-        <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-100 shadow-xs">
-          <Droplet className="w-6 h-6 fill-rose-600" />
+    <div className="max-w-md mx-auto my-8 space-y-6">
+      {/* Brand Header */}
+      <div className="text-center space-y-3">
+        <div className="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto border border-rose-500/20 shadow-lg shadow-rose-950/40">
+          <Droplet className="w-7 h-7 fill-rose-500" />
         </div>
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-100 tracking-tight">
           Sign In to LifePulse
         </h1>
-        <p className="text-xs text-slate-500">
-          Enter your registered email and password to access your role dashboard.
+        <p className="text-xs sm:text-sm text-slate-400 max-w-xs mx-auto leading-relaxed">
+          Access your verified healthcare dashboard, emergency alerts, or inventory records.
         </p>
       </div>
 
-      <Card>
+      <Card className="p-6 sm:p-8 space-y-5 bg-slate-900/95 border-slate-800 shadow-2xl">
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-            <span>{error}</span>
-          </div>
+          <Alert variant="danger" title="Authentication Failed">
+            {error}
+          </Alert>
         )}
 
         <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
-            <div className="relative">
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                className="w-full text-sm rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2.5 pl-9 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
-            </div>
-          </div>
+          <Input
+            label="Email Address"
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="e.g. admin@lifepulse.org"
+            leftIcon={<Mail className="w-4 h-4" />}
+          />
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+              Password <span className="text-rose-400 font-bold">*</span>
+            </label>
             <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <Lock className="w-4 h-4" />
+              </div>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full text-sm rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2.5 pl-9 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full bg-slate-900/90 border border-slate-800 rounded-xl py-2.5 px-3.5 pl-10 pr-10 text-sm text-slate-100 placeholder:text-slate-500 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
               />
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 
-          <Button type="submit" variant="primary" size="lg" className="w-full mt-2" isLoading={loading}>
-            Sign In
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            isLoading={loading}
+            disabled={loading}
+            className="w-full font-bold shadow-lg shadow-teal-950/60 mt-2 gap-2"
+          >
+            <span>Sign In to Dashboard</span>
+            <ArrowRight className="w-4 h-4" />
           </Button>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
-          Don&apos;t have an account?{" "}
-          <a href="/register" className="text-teal-600 font-bold hover:underline">
-            Register here
-          </a>
+        {/* Demo Credentials Section */}
+        <div className="pt-4 border-t border-slate-800 space-y-2.5">
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">
+            Demo Sandbox Accounts:
+          </p>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <button
+              type="button"
+              onClick={() => fillDemo("admin@lifepulse.org", "Admin@12345")}
+              className="px-2.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 text-left transition-colors cursor-pointer"
+            >
+              <div className="font-bold text-rose-400">Admin Account</div>
+              <div className="text-[10px] text-slate-400 truncate">admin@lifepulse.org</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => fillDemo("hospital@ja.org", "Hospital@12345")}
+              className="px-2.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 text-left transition-colors cursor-pointer"
+            >
+              <div className="font-bold text-teal-400">Hospital Staff</div>
+              <div className="text-[10px] text-slate-400 truncate">hospital@ja.org</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => fillDemo("donor.rajesh@gmail.com", "Donor@12345")}
+              className="px-2.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 text-left transition-colors cursor-pointer"
+            >
+              <div className="font-bold text-cyan-400">Voluntary Donor</div>
+              <div className="text-[10px] text-slate-400 truncate">donor.rajesh@gmail.com</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => fillDemo("patient.anita@gmail.com", "Patient@12345")}
+              className="px-2.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 text-left transition-colors cursor-pointer"
+            >
+              <div className="font-bold text-amber-400">Patient / Requester</div>
+              <div className="text-[10px] text-slate-400 truncate">patient.anita@gmail.com</div>
+            </button>
+          </div>
+        </div>
+
+        <div className="pt-2 text-center text-xs text-slate-400">
+          Don't have an account yet?{" "}
+          <Link href="/register" className="font-bold text-teal-400 hover:text-teal-300 hover:underline">
+            Register for LifePulse
+          </Link>
         </div>
       </Card>
-
-      {/* Demo Credentials Quick Fill Box (Crucial for Viva!) */}
-      <div className="bg-slate-100/90 rounded-2xl p-4 border border-slate-200 text-xs space-y-3 shadow-xs">
-        <div className="flex items-center gap-1.5 font-bold text-slate-700">
-          <ShieldCheck className="w-4 h-4 text-teal-600" />
-          <span>Quick Demo Auto-Fill (Click to test):</span>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <button
-            type="button"
-            onClick={() => fillDemo("admin@bloodbank.org", "Admin@123")}
-            className="p-2 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 font-semibold text-left transition-colors"
-          >
-            <div className="text-[10px] uppercase font-bold text-purple-600">Admin</div>
-            <div className="truncate text-xs">admin@bloodbank.org</div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => fillDemo("rahul.donor@example.com", "Donor@123")}
-            className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-900 font-semibold text-left transition-colors"
-          >
-            <div className="text-[10px] uppercase font-bold text-rose-600">Donor (O+)</div>
-            <div className="truncate text-xs">rahul.donor@...</div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => fillDemo("sarah.patient@example.com", "Patient@123")}
-            className="p-2 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-900 font-semibold text-left transition-colors"
-          >
-            <div className="text-[10px] uppercase font-bold text-teal-600">Patient/Hospital</div>
-            <div className="truncate text-xs">sarah.patient@...</div>
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="text-center py-12 text-sm text-slate-500">Loading sign in...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+          <div className="text-slate-400 animate-pulse text-sm">Loading sign in...</div>
+        </div>
+      }
+    >
       <LoginForm />
     </Suspense>
   );

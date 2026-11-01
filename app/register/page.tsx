@@ -2,8 +2,11 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardHeader } from "@/components/ui/Card";
+import Link from "next/link";
+import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Input, Select } from "@/components/ui/Input";
+import { Alert } from "@/components/ui/Alert";
 import { useToast } from "@/components/ui/Toast";
 import {
   Droplet,
@@ -14,8 +17,11 @@ import {
   User,
   Phone,
   MapPin,
-  AlertCircle,
   CheckCircle2,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  ArrowRight,
 } from "lucide-react";
 import { ALL_BLOOD_GROUPS, BLOOD_GROUP_DISPLAY } from "@/lib/constants";
 
@@ -26,7 +32,7 @@ function RegisterForm() {
   const searchParams = useSearchParams();
   const initialRole = searchParams.get("role") === "DONOR" ? "DONOR" : "PATIENT";
 
-  const { success, error: toastError } = useToast();
+  const { success: toastSuccess, error: toastError } = useToast();
 
   const [role, setRole] = useState<"DONOR" | "PATIENT">(initialRole);
   const [formData, setFormData] = useState({
@@ -34,11 +40,12 @@ function RegisterForm() {
     email: "",
     password: "",
     phone: "",
-    city: "",
+    city: "Gwalior",
     address: "",
     organizationName: "",
     bloodGroup: "O_POS",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -49,9 +56,26 @@ function RegisterForm() {
     }
   }, [searchParams]);
 
+  // Password strength calculation
+  const getPasswordStrength = (pwd: string) => {
+    let score = 0;
+    if (pwd.length >= 8) score++;
+    if (/[0-9]/.test(pwd)) score++;
+    if (/[A-Z]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+    return score;
+  };
+  const passwordStrength = getPasswordStrength(formData.password);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+
+    if (formData.password.length < 8) {
+      setErrorMessage("Password must be at least 8 characters long.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -88,7 +112,7 @@ function RegisterForm() {
         return;
       }
 
-      success("Account registered successfully! Please sign in.");
+      toastSuccess("Account registered successfully! Please sign in.");
       router.push("/login");
     } catch {
       setErrorMessage("An unexpected network error occurred.");
@@ -97,206 +121,212 @@ function RegisterForm() {
   };
 
   return (
-    <div className="max-w-xl mx-auto my-6 space-y-6">
-      <div className="text-center space-y-2">
-        <div className="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center mx-auto border border-teal-100 shadow-xs">
-          <Droplet className="w-6 h-6 fill-teal-600" />
+    <div className="max-w-xl mx-auto my-8 space-y-6">
+      {/* Brand Header */}
+      <div className="text-center space-y-3">
+        <div className="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto border border-rose-500/20 shadow-lg shadow-rose-950/40">
+          <Droplet className="w-7 h-7 fill-rose-500" />
         </div>
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-          Create Your Account
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-100 tracking-tight">
+          Create Your LifePulse Account
         </h1>
-        <p className="text-xs text-slate-500">
-          Join LifePulse as a certified donor or healthcare patient/facility.
+        <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto leading-relaxed">
+          Join our verified network as an active blood donor or hospital/patient requester.
         </p>
       </div>
 
-      <Card>
-        {/* Role Picker */}
-        <div className="mb-6">
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+      <Card className="p-6 sm:p-8 space-y-6 bg-slate-900/95 border-slate-800 shadow-2xl">
+        {/* Role Selection Cards */}
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
             Select Account Role:
           </label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3.5">
             <button
               type="button"
               onClick={() => setRole("DONOR")}
-              className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${
+              className={`p-4 rounded-2xl border flex flex-col items-center gap-2.5 transition-all text-center cursor-pointer ${
                 role === "DONOR"
-                  ? "border-rose-500 bg-rose-50/50 text-rose-900 shadow-xs ring-2 ring-rose-500/20 font-bold"
-                  : "border-slate-200 hover:border-slate-300 text-slate-600"
+                  ? "border-rose-500/80 bg-rose-500/10 text-rose-200 ring-2 ring-rose-500/20 shadow-lg shadow-rose-950/40"
+                  : "border-slate-800 bg-slate-950/40 hover:border-slate-700 text-slate-400"
               }`}
             >
-              <Heart
-                className={`w-6 h-6 ${role === "DONOR" ? "fill-rose-500 text-rose-500" : "text-slate-400"}`}
-              />
-              <span className="text-sm">Blood Donor</span>
-              <span className="text-[10px] text-slate-400 font-normal">Report donations & availability</span>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                role === "DONOR" ? "bg-rose-500/20 text-rose-400" : "bg-slate-800 text-slate-400"
+              }`}>
+                <Heart className="w-5 h-5 fill-current" />
+              </div>
+              <div>
+                <span className="text-sm font-bold block text-slate-100">Voluntary Donor</span>
+                <span className="text-[11px] text-slate-400 mt-0.5 block leading-tight">
+                  Book appointments & receive priority alerts
+                </span>
+              </div>
             </button>
 
             <button
               type="button"
               onClick={() => setRole("PATIENT")}
-              className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${
+              className={`p-4 rounded-2xl border flex flex-col items-center gap-2.5 transition-all text-center cursor-pointer ${
                 role === "PATIENT"
-                  ? "border-teal-500 bg-teal-50/50 text-teal-900 shadow-xs ring-2 ring-teal-500/20 font-bold"
-                  : "border-slate-200 hover:border-slate-300 text-slate-600"
+                  ? "border-teal-500/80 bg-teal-500/10 text-teal-200 ring-2 ring-teal-500/20 shadow-lg shadow-teal-950/40"
+                  : "border-slate-800 bg-slate-950/40 hover:border-slate-700 text-slate-400"
               }`}
             >
-              <Building2
-                className={`w-6 h-6 ${role === "PATIENT" ? "text-teal-600" : "text-slate-400"}`}
-              />
-              <span className="text-sm">Patient / Hospital</span>
-              <span className="text-[10px] text-slate-400 font-normal">Requisition & track blood supplies</span>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                role === "PATIENT" ? "bg-teal-500/20 text-teal-400" : "bg-slate-800 text-slate-400"
+              }`}>
+                <Building2 className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-sm font-bold block text-slate-100">Patient / Hospital</span>
+                <span className="text-[11px] text-slate-400 mt-0.5 block leading-tight">
+                  Submit emergency requests & track supply
+                </span>
+              </div>
             </button>
           </div>
         </div>
 
         {errorMessage && (
-          <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-            <span>{errorMessage}</span>
-          </div>
+          <Alert variant="danger" title="Registration Error">
+            {errorMessage}
+          </Alert>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. John Doe"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full text-sm rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 pl-9 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-                <User className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
-              </div>
-            </div>
+            <Input
+              label="Full Legal Name"
+              required
+              placeholder="e.g. Ramesh Verma"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              leftIcon={<User className="w-4 h-4" />}
+            />
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
-              <div className="relative">
-                <input
-                  type="email"
-                  required
-                  placeholder="e.g. john@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full text-sm rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 pl-9 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Password (min 8 chars, 1 number)
-              </label>
-              <div className="relative">
-                <input
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full text-sm rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 pl-9 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Phone Number</label>
-              <div className="relative">
-                <input
-                  type="tel"
-                  required
-                  placeholder="+1-555-0100"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full text-sm rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 pl-9 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-                <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">City</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Metro City"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full text-sm rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 pl-9 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-                <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
-              </div>
-            </div>
-
-            {role === "DONOR" ? (
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Blood Group
-                </label>
-                <select
-                  value={formData.bloodGroup}
-                  onChange={(e) => setFormData({ ...formData, bloodGroup: e.target.value })}
-                  className="w-full text-sm rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 font-bold"
-                >
-                  {ALL_BLOOD_GROUPS.map((bg) => (
-                    <option key={bg} value={bg}>
-                      {BLOOD_GROUP_DISPLAY[bg]}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : (
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Hospital / Organization Name (optional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. St. Jude Hospital"
-                  value={formData.organizationName}
-                  onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
-                  className="w-full text-sm rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Address (Optional)
-            </label>
-            <input
-              type="text"
-              placeholder="Street address or ward details"
-              value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              className="w-full text-sm rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            <Input
+              label="Email Address"
+              type="email"
+              required
+              placeholder="name@example.com"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              leftIcon={<Mail className="w-4 h-4" />}
             />
           </div>
 
-          <Button type="submit" variant="primary" size="lg" className="w-full mt-4" isLoading={loading}>
-            Create {role === "DONOR" ? "Donor" : "Patient"} Account
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                Password <span className="text-rose-400 font-bold">*</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Lock className="w-4 h-4" />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  placeholder="Min 8 characters"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="w-full bg-slate-900/90 border border-slate-800 rounded-xl py-2.5 px-3.5 pl-10 pr-10 text-sm text-slate-100 placeholder:text-slate-500 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+
+              {/* Password strength meter */}
+              {formData.password && (
+                <div className="flex items-center gap-1.5 pt-1">
+                  <div className={`h-1 flex-1 rounded-full ${passwordStrength >= 1 ? "bg-rose-500" : "bg-slate-800"}`} />
+                  <div className={`h-1 flex-1 rounded-full ${passwordStrength >= 2 ? "bg-amber-500" : "bg-slate-800"}`} />
+                  <div className={`h-1 flex-1 rounded-full ${passwordStrength >= 3 ? "bg-teal-500" : "bg-slate-800"}`} />
+                  <div className={`h-1 flex-1 rounded-full ${passwordStrength >= 4 ? "bg-emerald-500" : "bg-slate-800"}`} />
+                  <span className="text-[10px] text-slate-400 ml-1">
+                    {passwordStrength <= 1 ? "Weak" : passwordStrength <= 2 ? "Fair" : passwordStrength <= 3 ? "Good" : "Strong"}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <Input
+              label="Phone Number"
+              type="tel"
+              required
+              placeholder="+91-98260-XXXXX"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              leftIcon={<Phone className="w-4 h-4" />}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="City / District"
+              required
+              placeholder="e.g. Gwalior"
+              value={formData.city}
+              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              leftIcon={<MapPin className="w-4 h-4" />}
+            />
+
+            {role === "DONOR" ? (
+              <Select
+                label="Blood Group"
+                required
+                value={formData.bloodGroup}
+                onChange={(e) => setFormData({ ...formData, bloodGroup: e.target.value })}
+              >
+                {ALL_BLOOD_GROUPS.map((bg) => (
+                  <option key={bg} value={bg}>
+                    {BLOOD_GROUP_DISPLAY[bg]}
+                  </option>
+                ))}
+              </Select>
+            ) : (
+              <Input
+                label="Hospital / Organization (Optional)"
+                placeholder="e.g. J.A. Hospital"
+                value={formData.organizationName}
+                onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
+                leftIcon={<Building2 className="w-4 h-4" />}
+              />
+            )}
+          </div>
+
+          <Input
+            label="Residential / Facility Address"
+            placeholder="Ward / Street Details"
+            value={formData.address}
+            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+          />
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            isLoading={loading}
+            disabled={loading}
+            className="w-full font-bold shadow-lg shadow-teal-950/60 mt-3 gap-2"
+          >
+            <span>Create Verified Account</span>
+            <ArrowRight className="w-4 h-4" />
           </Button>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
-          Already have an account?{" "}
-          <a href="/login" className="text-teal-600 font-bold hover:underline">
-            Sign in here
-          </a>
+        <div className="pt-2 text-center text-xs text-slate-400">
+          Already registered on LifePulse?{" "}
+          <Link href="/login" className="font-bold text-teal-400 hover:text-teal-300 hover:underline">
+            Sign In Here
+          </Link>
         </div>
       </Card>
     </div>
@@ -305,7 +335,13 @@ function RegisterForm() {
 
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<div className="text-center py-12 text-sm text-slate-500">Loading registration...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+          <div className="text-slate-400 animate-pulse text-sm">Loading registration...</div>
+        </div>
+      }
+    >
       <RegisterForm />
     </Suspense>
   );
