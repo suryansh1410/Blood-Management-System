@@ -17,8 +17,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full">
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 selection:bg-rose-100 selection:text-rose-900">
+    <html lang="en" className="dark h-full">
+      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100 selection:bg-rose-500/30 selection:text-rose-200">
         <Providers>
           <ToastProvider>
             <Navbar />
@@ -32,4 +32,3 @@ export default function RootLayout({
     </html>
   );
 }
-

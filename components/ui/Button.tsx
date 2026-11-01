@@ -17,7 +17,7 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseClasses =
-    "inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none";
+    "inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none cursor-pointer focus:ring-offset-slate-950";
 
   const sizeClasses = {
     sm: "px-3 py-1.5 text-xs gap-1.5",
@@ -27,17 +27,17 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variantClasses = {
     primary:
-      "bg-teal-600 hover:bg-teal-700 text-white shadow-sm hover:shadow focus:ring-teal-500 active:bg-teal-800",
+      "bg-teal-600 hover:bg-teal-500 text-white shadow-sm hover:shadow focus:ring-teal-400 active:bg-teal-700",
     secondary:
-      "bg-slate-100 hover:bg-slate-200 text-slate-800 focus:ring-slate-400 active:bg-slate-300",
+      "bg-slate-800 hover:bg-slate-700 text-slate-200 focus:ring-slate-500 active:bg-slate-600 border border-slate-700",
     danger:
-      "bg-rose-600 hover:bg-rose-700 text-white shadow-sm hover:shadow focus:ring-rose-500 active:bg-rose-800",
+      "bg-rose-600 hover:bg-rose-500 text-white shadow-sm hover:shadow focus:ring-rose-400 active:bg-rose-700",
     success:
-      "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow focus:ring-emerald-500 active:bg-emerald-800",
+      "bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm hover:shadow focus:ring-emerald-400 active:bg-emerald-700",
     outline:
-      "border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 focus:ring-teal-500 active:bg-slate-100",
+      "border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 focus:ring-teal-500 active:bg-slate-700",
     ghost:
-      "bg-transparent hover:bg-slate-100 text-slate-600 hover:text-slate-900 focus:ring-slate-400",
+      "bg-transparent hover:bg-slate-800/60 text-slate-300 hover:text-white focus:ring-slate-500",
   };
 
   return (

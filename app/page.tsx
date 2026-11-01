@@ -147,15 +147,15 @@ export default async function HomePage() {
       <section className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-rose-600 mb-1">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-rose-400 mb-1">
               <Activity className="w-4 h-4" />
               Real-Time Stock Snapshot
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
               Current Blood Bank Reserves
             </h2>
-            <p className="text-sm text-slate-500 mt-1">
-              Live counts across all eight blood groups verified by blood bank administrators.
+            <p className="text-sm text-slate-400 mt-1">
+              Live counts across all eight blood groups verified by blood bank administrators. Click any group to view details.
             </p>
           </div>
           <a href="/blood-availability">
@@ -170,26 +170,26 @@ export default async function HomePage() {
       </section>
 
       {/* Key Metrics Strip */}
-      <section className="bg-white rounded-3xl border border-slate-200 p-8 shadow-xs">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-slate-100">
+      <section className="bg-slate-900/90 rounded-3xl border border-slate-800 p-8 shadow-md">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-slate-800">
           <div className="space-y-1">
-            <p className="text-3xl sm:text-4xl font-black text-teal-600">{totalUnits}</p>
-            <p className="text-xs sm:text-sm font-semibold text-slate-700">Total Units in Stock</p>
+            <p className="text-3xl sm:text-4xl font-black text-teal-400 tabular-nums">{totalUnits}</p>
+            <p className="text-xs sm:text-sm font-semibold text-slate-200">Total Units in Stock</p>
             <p className="text-xs text-slate-400">Across 8 Blood Groups</p>
           </div>
           <div className="space-y-1 pt-4 md:pt-0">
-            <p className="text-3xl sm:text-4xl font-black text-rose-600">{totalDonors}</p>
-            <p className="text-xs sm:text-sm font-semibold text-slate-700">Registered Donors</p>
+            <p className="text-3xl sm:text-4xl font-black text-rose-400 tabular-nums">{totalDonors}</p>
+            <p className="text-xs sm:text-sm font-semibold text-slate-200">Registered Donors</p>
             <p className="text-xs text-slate-400">Ready to save lives</p>
           </div>
           <div className="space-y-1 pt-4 md:pt-0">
-            <p className="text-3xl sm:text-4xl font-black text-slate-900">{totalDonations}</p>
-            <p className="text-xs sm:text-sm font-semibold text-slate-700">Verified Donations</p>
+            <p className="text-3xl sm:text-4xl font-black text-slate-100 tabular-nums">{totalDonations}</p>
+            <p className="text-xs sm:text-sm font-semibold text-slate-200">Verified Donations</p>
             <p className="text-xs text-slate-400">Staff verified records</p>
           </div>
           <div className="space-y-1 pt-4 md:pt-0">
-            <p className="text-3xl sm:text-4xl font-black text-blue-600">{totalRequests}</p>
-            <p className="text-xs sm:text-sm font-semibold text-slate-700">Hospital Requests</p>
+            <p className="text-3xl sm:text-4xl font-black text-sky-400 tabular-nums">{totalRequests}</p>
+            <p className="text-xs sm:text-sm font-semibold text-slate-200">Hospital Requests</p>
             <p className="text-xs text-slate-400">Tracked end-to-end</p>
           </div>
         </div>
@@ -198,43 +198,43 @@ export default async function HomePage() {
       {/* How It Works Overview */}
       <section className="space-y-8">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
             How The LifePulse Workflow Works
           </h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-400">
             A real-world verified pipeline ensuring safety, accountability, and accurate inventory.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-lg">
+            <div className="w-10 h-10 rounded-xl bg-teal-500/15 border border-teal-500/25 text-teal-400 flex items-center justify-center font-bold text-lg">
               1
             </div>
-            <h3 className="text-lg font-bold text-slate-900">Donation & Verification</h3>
-            <p className="text-sm text-slate-500 leading-relaxed">
+            <h3 className="text-lg font-bold text-white">Donation & Verification</h3>
+            <p className="text-sm text-slate-400 leading-relaxed">
               Donors register and record donation details. Blood bank staff review and verify each
               donation, which automatically increments inventory atomically.
             </p>
           </Card>
 
           <Card className="space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/25 text-blue-400 flex items-center justify-center font-bold text-lg">
               2
             </div>
-            <h3 className="text-lg font-bold text-slate-900">Patient & Hospital Request</h3>
-            <p className="text-sm text-slate-500 leading-relaxed">
+            <h3 className="text-lg font-bold text-white">Patient & Hospital Request</h3>
+            <p className="text-sm text-slate-400 leading-relaxed">
               Hospitals and patients submit specific blood requests with required dates and urgency
               levels. Requesters receive instant status updates.
             </p>
           </Card>
 
           <Card className="space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 flex items-center justify-center font-bold text-lg">
               3
             </div>
-            <h3 className="text-lg font-bold text-slate-900">Approval & Fulfillment</h3>
-            <p className="text-sm text-slate-500 leading-relaxed">
+            <h3 className="text-lg font-bold text-white">Approval & Fulfillment</h3>
+            <p className="text-sm text-slate-400 leading-relaxed">
               Admins approve requests, and upon physical handover, mark them fulfilled. Stock is
               strictly deducted without risk of negative inventory or double-deduction.
             </p>

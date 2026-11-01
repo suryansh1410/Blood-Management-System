@@ -25,7 +25,7 @@ interface StockChartProps {
 
 export function StockBarChart({ data }: StockChartProps) {
   if (!data || data.length === 0) {
-    return <div className="h-64 flex items-center justify-center text-slate-400">No stock data available</div>;
+    return <div className="h-64 flex items-center justify-center text-slate-500">No stock data available</div>;
   }
 
   const getBarColor = (status: string) => {
@@ -37,9 +37,9 @@ export function StockBarChart({ data }: StockChartProps) {
       case "CRITICAL":
         return "#f43f5e"; // rose-500
       case "OUT_OF_STOCK":
-        return "#be123c"; // rose-700
+        return "#64748b"; // slate-500
       default:
-        return "#64748b";
+        return "#475569";
     }
   };
 
@@ -47,20 +47,20 @@ export function StockBarChart({ data }: StockChartProps) {
     <div className="w-full h-72">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-          <XAxis dataKey="group" stroke="#64748b" fontSize={12} tickLine={false} />
-          <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" />
+          <XAxis dataKey="group" stroke="#94a3b8" fontSize={12} tickLine={false} />
+          <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
           <Tooltip
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
                 const item = payload[0].payload;
                 return (
-                  <div className="bg-white p-3 rounded-xl shadow-lg border border-slate-200 text-xs">
-                    <p className="font-bold text-slate-900 text-sm">{item.group}</p>
-                    <p className="text-slate-600 mt-1">
-                      Units: <span className="font-bold text-slate-900">{item.units}</span>
+                  <div className="bg-slate-900/95 p-3 rounded-xl shadow-2xl border border-slate-700 text-xs backdrop-blur-md">
+                    <p className="font-bold text-slate-100 text-sm">{item.group}</p>
+                    <p className="text-slate-300 mt-1">
+                      Units: <span className="font-bold text-white">{item.units}</span>
                     </p>
-                    <p className="text-slate-500 capitalize">Status: {item.status.replace("_", " ")}</p>
+                    <p className="text-slate-400 capitalize">Status: {item.status.replace("_", " ")}</p>
                   </div>
                 );
               }
@@ -87,7 +87,7 @@ interface RequestChartProps {
 
 export function RequestStatusChart({ data }: RequestChartProps) {
   if (!data || data.length === 0) {
-    return <div className="h-64 flex items-center justify-center text-slate-400">No request data</div>;
+    return <div className="h-64 flex items-center justify-center text-slate-500">No request data</div>;
   }
 
   const COLORS: Record<string, string> = {
@@ -95,7 +95,7 @@ export function RequestStatusChart({ data }: RequestChartProps) {
     APPROVED: "#0284c7",  // Sky
     FULFILLED: "#10b981", // Emerald
     REJECTED: "#f43f5e",  // Rose
-    CANCELLED: "#94a3b8", // Slate
+    CANCELLED: "#64748b", // Slate
   };
 
   return (
@@ -115,11 +115,24 @@ export function RequestStatusChart({ data }: RequestChartProps) {
             labelLine={false}
           >
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[entry.status] || "#94a3b8"} />
+              <Cell key={`cell-${index}`} fill={COLORS[entry.status] || "#64748b"} />
             ))}
           </Pie>
-          <Tooltip />
-          <Legend verticalAlign="bottom" height={36} iconType="circle" />
+          <Tooltip
+            content={({ active, payload }) => {
+              if (active && payload && payload.length) {
+                const item = payload[0];
+                return (
+                  <div className="bg-slate-900/95 p-3 rounded-xl shadow-2xl border border-slate-700 text-xs text-slate-100 backdrop-blur-md">
+                    <p className="font-bold text-white capitalize">{item.name?.toString().replace("_", " ")}</p>
+                    <p className="text-slate-300 mt-1">Count: <span className="font-bold text-white">{item.value}</span></p>
+                  </div>
+                );
+              }
+              return null;
+            }}
+          />
+          <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ color: "#94a3b8" }} />
         </PieChart>
       </ResponsiveContainer>
     </div>
