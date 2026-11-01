@@ -57,7 +57,6 @@ export function Navbar() {
     { href: "/", label: "Home" },
     { href: "/emergency", label: "Emergency Request", isEmergency: true },
     { href: "/donors/finder", label: "Nearby Donors" },
-    { href: "/heatmap", label: "Network Heatmap" },
     { href: "/inventory/live", label: "Live Stock" },
     { href: "/appointments/book", label: "Book Appointment" },
     { href: "/track", label: "Track Request" },
@@ -68,7 +67,6 @@ export function Navbar() {
     { href: "/appointments/book", label: "Book Appointment", icon: Calendar },
     { href: "/donor/alerts", label: "Emergency Alerts", icon: Bell },
     { href: "/donors/finder", label: "Nearby Donors", icon: Users },
-    { href: "/heatmap", label: "Heatmap", icon: Search },
     { href: "/donor/donations", label: "My History", icon: Calendar },
     { href: "/donor/profile", label: "Profile & Privacy", icon: User },
   ];
@@ -78,7 +76,6 @@ export function Navbar() {
     { href: "/emergency", label: "Emergency Request", icon: PlusCircle, isEmergency: true },
     { href: "/track", label: "Track Request", icon: FileText },
     { href: "/donors/finder", label: "Nearby Donors", icon: Users },
-    { href: "/heatmap", label: "Network Heatmap", icon: Search },
     { href: "/patient/requests", label: "My Requests", icon: FileText },
     { href: "/patient/profile", label: "Profile", icon: User },
   ];
@@ -89,7 +86,6 @@ export function Navbar() {
     { href: "/admin/requests", label: "Emergency Requests", icon: FileText },
     { href: "/admin/appointments", label: "Appointments", icon: Calendar },
     { href: "/donors/finder", label: "Donor Finder", icon: Users },
-    { href: "/heatmap", label: "Network Map", icon: Search },
     { href: "/admin/reports", label: "Audit Log", icon: FileText },
   ];
 
@@ -98,7 +94,6 @@ export function Navbar() {
     { href: "/admin/requests", label: "Emergency Requests", icon: FileText },
     { href: "/admin/appointments", label: "Appointments", icon: Calendar },
     { href: "/donors/finder", label: "Nearby Donors", icon: Users },
-    { href: "/heatmap", label: "Network Map", icon: Search },
   ];
 
   const currentNavLinks =

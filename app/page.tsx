@@ -20,7 +20,6 @@ import {
   Layers,
   Calendar,
   Clock,
-  MapPin,
   Sparkles,
 } from "lucide-react";
 
@@ -150,7 +149,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Integrated Six-Feature Coordination Platform */}
+      {/* Integrated Five-Feature Coordination Platform */}
       <section className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
@@ -159,7 +158,7 @@ export default async function HomePage() {
               Integrated Coordination System
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              Six Real-World Healthcare Features
+              Five Real-World Healthcare Features
             </h2>
             <p className="text-sm text-slate-400 mt-1 max-w-2xl">
               Connected emergency matching, privacy-preserving donor coordination, and live audit-safe
@@ -286,30 +285,6 @@ export default async function HomePage() {
             </p>
             <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-purple-400">
               Track Status &rarr;
-            </div>
-          </a>
-
-          {/* Feature 6 */}
-          <a
-            href="/heatmap"
-            className="group bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-6 shadow-xl transition-all duration-200 hover:-translate-y-1 relative overflow-hidden"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <MapPin className="w-6 h-6" />
-              </div>
-              <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                Geographic Map
-              </span>
-            </div>
-            <h3 className="text-base font-extrabold text-slate-100 group-hover:text-amber-400 transition-colors">
-              Blood Network Heatmap
-            </h3>
-            <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-              Interactive map of verified blood centers across Gwalior, MP, and India with color-coded stock availability.
-            </p>
-            <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-amber-400">
-              Explore Network Map &rarr;
             </div>
           </a>
         </div>
