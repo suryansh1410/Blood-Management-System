@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  DONOR
+  PATIENT
+}
+
+enum BloodGroup {
+  A_POS
+  A_NEG
+  B_POS
+  B_NEG
+  AB_POS
+  AB_NEG
+  O_POS
+  O_NEG
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  UNAVAILABLE
+}
+
+enum DonationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  FULFILLED
+  CANCELLED
+}
+
+enum Urgency {
+  NORMAL
+  URGENT
+  EMERGENCY
+}
+
+enum AuditAction {
+  DONATION_VERIFIED
+  DONATION_REJECTED
+  REQUEST_APPROVED
+  REQUEST_REJECTED
+  REQUEST_FULFILLED
+  STOCK_ADJUSTED
+  USER_ACTIVATED
+  USER_DEACTIVATED
+}
+
+enum CenterType {
+  BLOOD_BANK
+  HOSPITAL
+}
+
+model User {
+  id               String         @id @default(cuid())
+  name             String
+  email            String         @unique
+  passwordHash     String
+  phone            String
+  role             Role
+  city             String
+  address          String?
+  organizationName String?
+  isActive         Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  donorProfile     DonorProfile?
+  donations        Donation[]
+  bloodRequests    BloodRequest[]
+  notifications    Notification[]
+  auditLogs        AuditLog[]     @relation("AdminAuditLogs")
+}
+
+model DonorProfile {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  user               User               @relation(fields: [userId], references: [id])
+  bloodGroup         BloodGroup
+  availabilityStatus AvailabilityStatus @default(AVAILABLE)
+}
+
+model BloodCenter {
+  id        Int        @id @default(autoincrement())
+  name      String
+  type      CenterType
+  city      String
+  address   String
+  phone     String
+  isMain    Boolean    @default(false)
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  stocks    BloodStock[]
+}
+
+model BloodStock {
+  id          String      @id @default(cuid())
+  centerId    Int
+  center      BloodCenter @relation(fields: [centerId], references: [id])
+  bloodGroup  BloodGroup
+  units       Int         @default(0)
+  lastUpdated DateTime    @updatedAt
+
+  @@unique([centerId, bloodGroup])
+}
+
+model Donation {
+  id              String         @id @default(cuid())
+  donorId         String
+  donor           User           @relation(fields: [donorId], references: [id])
+  bloodGroup      BloodGroup
+  units           Int            @default(1)
+  donationDate    DateTime
+  location        String?        // donation center / location (optional)
+  status          DonationStatus @default(PENDING)
+  rejectionReason String?        // reason stored when admin rejects
+  verifiedAt      DateTime?
+  createdAt       DateTime       @default(now())
+}
+
+model BloodRequest {
+  id              String        @id @default(cuid())
+  requesterId     String
+  requester       User          @relation(fields: [requesterId], references: [id])
+  patientName     String
+  bloodGroup      BloodGroup
+  unitsRequired   Int
+  hospitalName    String
+  city            String
+  contactNumber   String
+  requiredDate    DateTime
+  urgency         Urgency       @default(NORMAL)
+  additionalInfo  String?
+  status          RequestStatus @default(PENDING)
+  rejectionReason String?       // reason stored when admin rejects
+  requestDate     DateTime      @default(now())
+  approvedAt      DateTime?
+  fulfilledAt     DateTime?
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?  // null = broadcast to all admins
+  user      User?    @relation(fields: [userId], references: [id])
+  type      String   // e.g. REQUEST_SUBMITTED, REQUEST_APPROVED, DONATION_VERIFIED, LOW_STOCK_WARNING
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// Audit log for important admin operations
+model AuditLog {
+  id         String      @id @default(cuid())
+  adminId    String
+  admin      User        @relation("AdminAuditLogs", fields: [adminId], references: [id])
+  action     AuditAction
+  targetId   String      // ID of affected record (donation, request, bloodGroup, userId)
+  targetType String      // "Donation" | "BloodRequest" | "BloodStock" | "User"
+  metadata   Json?       // additional context (units, blood group, reason, etc.)
+  createdAt  DateTime    @default(now())
+
+  @@index([adminId])
+  @@index([action])
+  @@index([createdAt])
+}

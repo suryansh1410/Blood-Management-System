@@ -1,0 +1,1 @@
+export { default } from "./blood/BloodFinder";
